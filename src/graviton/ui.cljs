@@ -4,9 +4,9 @@
 
 (defn text-field [text size]
   (-> (js/PIXI.Text. text (js/PIXI.TextStyle.
-                            #js {:fill       "#FF00FF"
-                                 :fontSize   size
-                                 :fontFamily "Arial"}))))
+                           #js {:fill       "#FF00FF"
+                                :fontSize   size
+                                :fontFamily "Arial"}))))
 
 (defn text-box [{:keys [text x y]}]
   {:x        x

@@ -1,30 +1,30 @@
 (ns graviton.core
   (:require
-    [graviton.attractor :as attractor]
-    [graviton.deathzone :as deathzone]
-    [graviton.engine :as engine]
-    [graviton.force-field :as force-field]
-    [graviton.prizes :as prizes]
-    [graviton.ship :as ship]
-    [graviton.ui :as ui]
-    [clojure.walk :refer [postwalk]]
-    [reagent.core :as r]
-    [cljsjs.pixi]
-    [cljsjs.pixi-sound]))
+   [graviton.attractor :as attractor]
+   [graviton.deathzone :as deathzone]
+   [graviton.engine :as engine]
+   [graviton.force-field :as force-field]
+   [graviton.prizes :as prizes]
+   [graviton.ship :as ship]
+   [graviton.ui :as ui]
+   [clojure.walk :refer [postwalk]]
+   [reagent.core :as r]
+   [cljsjs.pixi]
+   [cljsjs.pixi-sound]))
 
 (defn update-actors [state]
   (update
-    state
-    :actors
-    (fn [actors]
-      (postwalk
-        (fn [node]
-          (if (and (:graphics node) (:update node))
-            (let [updated-node ((:update node) node state)]
-              (engine/set-graphics-position updated-node)
-              updated-node)
-            node))
-        actors))))
+   state
+   :actors
+   (fn [actors]
+     (postwalk
+      (fn [node]
+        (if (and (:graphics node) (:update node))
+          (let [updated-node ((:update node) node state)]
+            (engine/set-graphics-position updated-node)
+            updated-node)
+          node))
+      actors))))
 
 (defn update-scene-objects [state]
   (doseq [{:keys [update] :as object} (into (:background state) (:foreground state))]
@@ -38,14 +38,14 @@
 ;;todo only run when adding/removing actors
 (defn group-actors-by-type [actors]
   (reduce
-    (fn [entities {:keys [type] :as actor}]
-      (case type
-        :player (assoc entities :player actor)
-        :deathzone (update entities :deathzones (fnil conj []) actor)
-        :prize (update entities :prizes (fnil conj []) actor)
-        entities))
-    {}
-    actors))
+   (fn [entities {:keys [type] :as actor}]
+     (case type
+       :player (assoc entities :player actor)
+       :deathzone (update entities :deathzones (fnil conj []) actor)
+       :prize (update entities :prizes (fnil conj []) actor)
+       entities))
+   {}
+   actors))
 
 (declare initial-state-map)
 (def state (volatile! nil))
@@ -90,16 +90,16 @@
 
 (defn find-prize-collisions [{:keys [stage] :as state} player prizes]
   (reduce
-    (fn [state {:keys [id] :as prize}]
-      (if (engine/collides? player prize)
-        (do
-          (engine/remove-from-stage stage prize)
-          (-> state
-              (update :actors (fn [actors] (vec (remove #(= (:id %) id) actors))))
-              (update :score inc)))
-        state))
-    state
-    prizes))
+   (fn [state {:keys [id] :as prize}]
+     (if (engine/collides? player prize)
+       (do
+         (engine/remove-from-stage stage prize)
+         (-> state
+             (update :actors (fn [actors] (vec (remove #(= (:id %) id) actors))))
+             (update :score inc)))
+       state))
+   state
+   prizes))
 
 (defn prize-collisions [state player prizes]
   (let [{:keys [total-prizes score] :as new-state} (find-prize-collisions state player prizes)]
