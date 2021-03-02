@@ -172,13 +172,21 @@
 (defn init-state [state]
   (vreset! state (initial-state-map)))
 
+(defn dpi [] (or js/window.devicePixelRatio 1))
+(def scale 1)
+
 (defn canvas [state]
-  (r/create-class
-    {:component-did-mount
-     (engine/init-canvas state ui/help-menu)
-     :render
-     (fn []
-       [:canvas {:width (.-innerWidth js/window) :height (.-innerHeight js/window)}])}))
+  (let [width (.-innerWidth js/window)
+        height (.-innerHeight js/window)]
+    (r/create-class
+     {:component-did-mount
+      (engine/init-canvas state scale ui/help-menu)
+      :render
+      (fn []
+        [:canvas {:width (* width scale)
+                  :height (* height scale)
+                  :style {:width (str width "px")
+                          :height (str height "px")}}])})))
 
 (defn game []
   [canvas state])
@@ -186,9 +194,24 @@
 ;; -------------------------
 ;; Initialize app
 
+(def assets
+  {:at "assets/at.png"
+   :ship  "assets/ship.gif"})
+
+(defn load-assets! [done]
+  (let [paths (map (fn [[_ v]] v) (into [] assets))
+        loader js/PIXI.loader]
+    (doseq [p paths]
+      (. loader add p))
+    (. loader load done)))
+
 (defn mount-root []
   (init-state state)
-  (r/render [game] (.getElementById js/document "app")))
+  (r/render [game] (.getElementById js/document "app"))
+  (let [s (:stage @state)]
+    (js/console.log @state)
+    (. (. s -scale) set scale)))
 
 (defn init! []
-  (mount-root))
+  (set! js/PIXI.settings.SCALE_MODE js/PIXI.SCALE_MODES.NEAREST)
+  (load-assets! mount-root))

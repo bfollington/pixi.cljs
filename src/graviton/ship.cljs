@@ -45,7 +45,7 @@
 (defn instance [state]
   {:id       :ship
    :type     :player
-   :graphics (ship-icon)
+   :graphics (engine/sprite "at.png")
    :z-index  1
    :velocity {:y 0 :x 0}
    :width    25

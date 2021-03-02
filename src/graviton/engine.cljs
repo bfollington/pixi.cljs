@@ -193,11 +193,11 @@
       (when on-click
         (set! (.-click background-layer) (partial on-click state))))))
 
-(defn init-canvas [state init-fn]
+(defn init-canvas [state scale init-fn]
   (fn [component]
     (let [canvas (r/dom-node component)
-          width  (int (.-width canvas))
-          height (int (.-height canvas))
+          width  (int (/ (.-width canvas) scale))
+          height (int (/ (.-height canvas) scale))
           stage  (init-stage)
           ticker (js/PIXI.ticker.Ticker.)]
       (vswap! state assoc
